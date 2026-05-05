@@ -39,15 +39,34 @@ export default function ComplaintModal({ isOpen, onClose }: { isOpen: boolean; o
     };
   }, [isOpen, mounted]);
 
-  const onSubmit = (data: ComplaintValues) => {
-    console.log("Complaint Data:", data);
-    setIsSubmitted(true);
-    setTimeout(() => {
-      setIsSubmitted(false);
-      reset();
-      onClose();
-    }, 2500);
-  };
+const onSubmit = async (data: ComplaintValues) => {
+  try {
+    const response = await fetch('/api/complain', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      // সাকসেস হলে নিচের কাজগুলো হবে
+      setIsSubmitted(true);
+      
+      setTimeout(() => {
+        setIsSubmitted(false);
+        reset();
+        onClose();
+      }, 2500);
+    } else {
+      
+      console.error('Submission failed');
+    }
+  } catch (error) {
+    
+    console.error('Error submitting complaint:', error);
+  }
+};
 
   if (!mounted) return null;
 
