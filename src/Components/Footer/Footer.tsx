@@ -62,7 +62,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/add-service"
+                  href="/addService"
                   className="hover:underline hover:text-primary"
                 >
                   সেবা যোগ করুন

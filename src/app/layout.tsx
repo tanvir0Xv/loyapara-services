@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/Components/Navbar/Navbar";
 import Footer from "@/Components/Footer/Footer";
 import WhatsAppSupport from "@/Components/WhatsAppSupport/WhatsAppSupport";
+import ReactQueryProvider from "@/Components/Providers/ReactQueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +31,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar/>
-        {children}
-        <WhatsAppSupport/>
-        <Footer/>
+        <ReactQueryProvider>
+          <Navbar/>
+          {children}
+          <WhatsAppSupport/>
+          <Footer/>
+        </ReactQueryProvider>
       </body>
     </html>
   );

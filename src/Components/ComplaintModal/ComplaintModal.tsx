@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { AlertTriangle, X, Send, User, MessageSquare, CheckCircle2, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQueryClient } from '@tanstack/react-query';
 
 type ComplaintValues = {
   accusedName: string;
@@ -15,6 +16,7 @@ export default function ComplaintModal({ isOpen, onClose }: { isOpen: boolean; o
   const [mounted, setMounted] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { register, handleSubmit, formState: { errors }, reset } = useForm<ComplaintValues>();
+  const queryClient = useQueryClient();
 
 
   useEffect(() => {
@@ -51,6 +53,7 @@ const onSubmit = async (data: ComplaintValues) => {
 
     if (response.ok) {
       // সাকসেস হলে নিচের কাজগুলো হবে
+      await queryClient.invalidateQueries({ queryKey: ["complaints"] });
       setIsSubmitted(true);
       
       setTimeout(() => {

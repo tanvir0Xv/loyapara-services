@@ -16,5 +16,6 @@ export enum collectionName  {
 	VANCYCLEMECHANIC = 'vanCycleMechanic',
 	WELDING = 'welding',
 	ALL = "all",
-	COMPLAIN = "complain"
+	COMPLAIN = "complain",
+	LOST_FOUND = "lostFound"
 }

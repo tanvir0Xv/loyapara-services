@@ -2,13 +2,17 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // এটি প্রয়োজন
-import { MapPin } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ChevronDown, MapPin, Search, ShieldAlert } from "lucide-react";
 import ComplaintModal from "../ComplaintModal/ComplaintModal";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar: React.FC = () => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCheckingDashboard, setIsCheckingDashboard] = useState(false);
 
   const detailsRef = useRef<HTMLDetailsElement>(null);
 
@@ -33,7 +37,19 @@ const Navbar: React.FC = () => {
   }, []);
 
   // একটিভ পাথ চেক করার ফাংশন
-  const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) => {
+    if (path === "/services") {
+      // যদি রুট শুধু /services হয়, তবে কোনো ক্যাটাগরি থাকা যাবে না
+      return pathname === "/services" && !searchParams.get("category");
+    }
+    if (path.includes("?category=")) {
+      const category = path.split("?category=")[1];
+      return (
+        pathname === "/services" && searchParams.get("category") === category
+      );
+    }
+    return pathname === path;
+  };
 
   const navItems = (
     <>
@@ -264,131 +280,37 @@ const Navbar: React.FC = () => {
     </>
   );
 
+  const handleDashboardClick = async () => {
+    if (isCheckingDashboard) return;
+    setIsCheckingDashboard(true);
+    try {
+      const response = await fetch("/api/auth/me", { cache: "no-store" });
+      if (response.ok) {
+        router.push("/Dashboard");
+      } else {
+        router.push("/login");
+      }
+    } catch {
+      router.push("/login");
+    } finally {
+      setIsCheckingDashboard(false);
+    }
+  };
+
   return (
-    <div className="navbar bg-base-100/80 backdrop-blur-md shadow-sm sticky top-0 text-black z-50 px-2 lg:px-8">
-      <div className="navbar-start">
-        <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+    <>
+      <motion.div
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className="navbar bg-white/70 backdrop-blur-2xl border-b border-slate-200/50 sticky top-0 z-50 px-4 lg:px-12 transition-all duration-300"
+      >
+        <div className="navbar-start gap-2">
+          <div className="dropdown lg:hidden">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-ghost btn-circle text-slate-600 hover:bg-slate-100/50"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h8m-8 6h16"
-              />
-            </svg>
-          </div>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[50] mt-3 w-52 p-2 shadow-2xl border border-base-200"
-          >
-            <li>
-              <Link
-                href="/"
-                className={
-                  isActive("/")
-                    ? " border-b-2 font-bold rounded-none border-primary "
-                    : ""
-                }
-              >
-                হোম
-              </Link>
-            </li>
-            {navItems}
-            <li>
-              <Link
-                href="/emergency"
-                className={
-                  isActive("/emergency")
-                    ? " border-b-2 font-bold rounded-none border-primary "
-                    : ""
-                }
-              >
-                জরুরি নম্বর
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/about"
-                className={
-                  isActive("/about")
-                    ? " border-b-2 font-bold rounded-none border-primary "
-                    : ""
-                }
-              >
-                আমাদের সম্পর্কে
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="bg-primary p-2 rounded-lg text-white group-hover:rotate-12 transition-transform">
-            <MapPin size={24} />
-          </div>
-          <span className="text-xl font-black tracking-tighter sm:block text-slate-800">
-            লয়াপাড়া<span className="text-primary">সেবা</span>
-          </span>
-        </Link>
-      </div>
-
-      <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 font-medium gap-2">
-          <li>
-            <Link
-              href="/"
-              className={
-                isActive("/")
-                  ? " border-b-2 font-bold rounded-none border-primary "
-                  : ""
-              }
-            >
-              হোম
-            </Link>
-          </li>
-          {navItems}
-          <li>
-            <Link
-              href="/emergency"
-              className={
-                isActive("/emergency")
-                  ? " border-b-2 font-bold rounded-none border-primary "
-                  : ""
-              }
-            >
-              জরুরি নম্বর
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/about"
-              className={
-                isActive("/about")
-                  ? " border-b-2 font-bold rounded-none border-primary "
-                  : ""
-              }
-            >
-              আমাদের সম্পর্কে
-            </Link>
-          </li>
-        </ul>
-      </div>
-
-      <div className="navbar-end gap-3">
-        <div className="dropdown dropdown-end">
-          {/* হেল্প আইকন বাটন */}
-          <div
-            tabIndex={0}
-            role="button"
-            className="btn btn-ghost btn-circle text-slate-600 bg-slate-100/50 hover:bg-primary/10 hover:text-primary transition-all duration-300"
-          >
-            <div className="indicator">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
@@ -400,105 +322,189 @@ const Navbar: React.FC = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  d="M4 6h16M4 12h8m-8 6h16"
                 />
               </svg>
-              <span className="badge badge-xs badge-primary indicator-item ring-2 ring-white"></span>
             </div>
+            <ul
+              tabIndex={0}
+              className="menu menu-sm dropdown-content mt-4 z-[60] w-64 p-3 bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-slate-100 animate-in fade-in zoom-in duration-300"
+            >
+              <li className="mb-1">
+                <Link
+                  href="/"
+                  className={`rounded-xl py-3 px-4 font-bold ${isActive("/") ? "bg-primary/10 text-primary" : "text-slate-600"}`}
+                >
+                  হোম
+                </Link>
+              </li>
+              {navItems}
+              <li className="mb-1">
+                <Link
+                  href="/emergency"
+                  className={`rounded-xl py-3 px-4 font-bold ${isActive("/emergency") ? "bg-primary/10 text-primary" : "text-slate-600"}`}
+                >
+                  জরুরি নম্বর
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/about"
+                  className={`rounded-xl py-3 px-4 font-bold ${isActive("/about") ? "bg-primary/10 text-primary" : "text-slate-600"}`}
+                >
+                  আমাদের সম্পর্কে
+                </Link>
+              </li>
+            </ul>
           </div>
 
-          {/* ড্রপডাউন কন্টেন্ট */}
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-[28px] z-[60] mt-4 w-72 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 text-slate-700 animate-in fade-in zoom-in duration-200"
-          >
-            {/* হারিয়ে যাওয়া বা পাওয়া বাটন */}
-            <li className="mb-2">
+          <Link href="/" className="flex items-center gap-3 group relative">
+            <motion.div
+              whileHover={{ rotate: 15, scale: 1.1 }}
+              className="bg-primary p-2.5 rounded-2xl text-white shadow-lg shadow-primary/20 transition-all group-hover:shadow-primary/40"
+            >
+              <MapPin size={22} strokeWidth={2.5} />
+            </motion.div>
+            <div className="flex flex-col">
+              <span className="text-xl font-black tracking-tighter text-slate-900 leading-none">
+                লয়াপাড়া<span className="text-primary italic">সেবা</span>
+              </span>
+              <span className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1">
+                Village Network
+              </span>
+            </div>
+          </Link>
+        </div>
+
+        <div className="navbar-center hidden lg:flex">
+          <ul className="menu menu-horizontal p-1 gap-1">
+            <li>
               <Link
-                href="/lostFound"
-                className="flex items-center gap-4 p-4 hover:bg-indigo-50 text-indigo-700 font-bold rounded-2xl transition-all group border border-transparent hover:border-indigo-100"
+                href="/"
+                className={`px-6 py-2.5 rounded-full font-bold transition-all ${
+                  isActive("/")
+                    ? "bg-primary text-white shadow-lg shadow-primary/20"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
               >
-                <div className="bg-indigo-100 p-2.5 rounded-xl group-hover:bg-indigo-200 transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="m21 21-4.3-4.3" />
-                    <path d="M11 8a3 3 0 0 0-3 3" />
-                  </svg>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[15px] leading-tight">
-                    হারিয়ে যাওয়া বা পাওয়া
-                  </span>
-                  <span className="text-[10px] font-medium text-indigo-400 mt-0.5">
-                    দরকারি জিনিসের খোঁজ দিন
-                  </span>
-                </div>
+                হোম
               </Link>
             </li>
-
-            <div className="divider opacity-40 my-1 px-4"></div>
-
-            {/* অভিযোগ জানান বাটন */}
+            {navItems}
             <li>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-4 p-4 hover:bg-rose-50 text-rose-600 font-bold rounded-2xl transition-all group w-full border border-transparent hover:border-rose-100"
+              <Link
+                href="/emergency"
+                className={`px-6 py-2.5 rounded-full font-bold transition-all ${
+                  isActive("/emergency")
+                    ? "bg-primary text-white shadow-lg shadow-primary/20"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
               >
-                <div className="bg-rose-100 p-2.5 rounded-xl group-hover:bg-rose-200 transition-colors">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M12 9v4" />
-                    <path d="M12 17h.01" />
-                    <path d="m4.93 4.93 14.14 14.14" />
-                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                  </svg>
-                </div>
-                <div className="flex flex-col text-left">
-                  <span className="text-[15px] leading-tight">
-                    অভিযোগ জানান
-                  </span>
-                  <span className="text-[10px] font-medium text-rose-400 mt-0.5">
-                    সেবা নিয়ে মতামত দিন
-                  </span>
-                </div>
-              </button>
+                জরুরি নম্বর
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/about"
+                className={`px-6 py-2.5 rounded-full font-bold transition-all ${
+                  isActive("/about")
+                    ? "bg-primary text-white shadow-lg shadow-primary/20"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                আমাদের সম্পর্কে
+              </Link>
             </li>
           </ul>
         </div>
 
-        {/* লিস্টিং যোগ করুন বাটন */}
-        <Link
-          href="/addService"
-          className={`btn btn-primary btn-sm md:btn-md text-white rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 ${isActive("/addService") ? "ring-2 ring-primary ring-offset-2" : ""}`}
-        >
-          <span className="hidden sm:inline">লিস্টিং যোগ করুন</span>
-          <span className="sm:hidden">+ যোগ</span>
-        </Link>
-      </div>
+        <div className="navbar-end gap-3">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleDashboardClick}
+            className="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-slate-900 text-white font-bold text-sm shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all"
+          >
+            {isCheckingDashboard ? (
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <ShieldAlert size={16} className="text-primary" />
+            )}
+            Admin
+          </motion.button>
+
+          {/* লিস্টিং যোগ করুন বাটন */}
+          <Link
+            href="/addService"
+            className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-white font-bold text-sm shadow-xl shadow-primary/20 hover:brightness-110 transition-all active:scale-95"
+          >
+            <span>লিস্টিং যোগ করুন</span>
+          </Link>
+
+          <div className="dropdown dropdown-end">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-ghost btn-circle text-slate-600 bg-slate-100/50 hover:bg-primary/10 hover:text-primary transition-all duration-300"
+            >
+              <div className="indicator">
+                <Search size={20} />
+                <span className="badge badge-xs badge-primary indicator-item ring-2 ring-white"></span>
+              </div>
+            </div>
+
+            <ul
+              tabIndex={0}
+              className="menu menu-sm dropdown-content bg-white/95 backdrop-blur-xl rounded-[2.5rem] z-[60] mt-4 w-72 p-5 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.15)] border border-slate-100 animate-in fade-in zoom-in duration-300"
+            >
+              <li className="mb-3">
+                <Link
+                  href="/lostFound"
+                  className="flex items-center gap-4 p-4 bg-indigo-50/50 hover:bg-indigo-50 text-indigo-700 font-bold rounded-2xl transition-all group border border-indigo-100/50"
+                >
+                  <div className="bg-indigo-100 p-2.5 rounded-xl group-hover:bg-indigo-200 transition-colors shadow-sm">
+                    <Search size={20} strokeWidth={2.5} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[14px] leading-tight font-black">
+                      হারিয়ে যাওয়া / পাওয়া
+                    </span>
+                    <span className="text-[10px] font-bold text-indigo-400 mt-1 uppercase tracking-wider">
+                      Public Records
+                    </span>
+                  </div>
+                </Link>
+              </li>
+
+              <div className="h-px bg-slate-100 w-full mb-3" />
+
+              <li>
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="flex items-center gap-4 p-4 bg-rose-50/50 hover:bg-rose-50 text-rose-600 font-bold rounded-2xl transition-all group w-full border border-rose-100/50"
+                >
+                  <div className="bg-rose-100 p-2.5 rounded-xl group-hover:bg-rose-200 transition-colors shadow-sm">
+                    <ShieldAlert size={20} strokeWidth={2.5} />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-[14px] leading-tight font-black">
+                      অভিযোগ জানান
+                    </span>
+                    <span className="text-[10px] font-bold text-rose-400 mt-1 uppercase tracking-wider">
+                      Report Issue
+                    </span>
+                  </div>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </motion.div>
       <ComplaintModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
-    </div>
+    </>
   );
 };
 
