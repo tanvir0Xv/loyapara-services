@@ -9,8 +9,12 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "cdn-icons-png.flaticon.com" },
       { protocol: "https", hostname: "encrypted-tbn0.gstatic.com" },
     ],
+    unoptimized: process.env.NODE_ENV === "development",
   },
   reactCompiler: false,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;

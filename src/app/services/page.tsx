@@ -109,3 +109,5 @@ export default async function ServicesPage({
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";

@@ -692,3 +692,5 @@ export default function LostFoundPage() {
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";

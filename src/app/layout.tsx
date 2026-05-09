@@ -6,6 +6,7 @@ import Footer from "@/Components/Footer/Footer";
 import WhatsAppSupport from "@/Components/WhatsAppSupport/WhatsAppSupport";
 import ReactQueryProvider from "@/Components/Providers/ReactQueryProvider";
 import { Toaster } from "sonner";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,7 +43,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ReactQueryProvider>
-          <Navbar />
+          <Suspense fallback={null}>
+            <Navbar />
+          </Suspense>
           {children}
           <WhatsAppSupport />
           <Footer />

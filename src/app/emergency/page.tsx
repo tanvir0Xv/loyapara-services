@@ -178,3 +178,5 @@ export default function EmergencyPage() {
     </main>
   );
 }
+
+export const dynamic = "force-dynamic";

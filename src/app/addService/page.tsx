@@ -844,3 +844,5 @@ export default function AddServicePage() {
     </main>
   );
 }
+
+export const dynamic = "force-dynamic";
