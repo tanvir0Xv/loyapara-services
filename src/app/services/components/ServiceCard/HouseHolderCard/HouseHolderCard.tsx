@@ -78,7 +78,7 @@ const HouseHolderCard = ({ data }: { data: Farmer }) => {
         <div className="mb-6 flex items-center gap-2 bg-slate-50 border border-slate-100 px-4 py-2 rounded-2xl">
             <ShoppingCart size={16} className="text-amber-600 shrink-0" />
             <span className="text-[11px] font-bold text-slate-700 truncate">
-                উৎপাদন: {data.produces.join(", ")}
+                উৎপাদন: {Array.isArray(data.produces) ? data.produces.join(", ") : data.produces}
             </span>
         </div>
 

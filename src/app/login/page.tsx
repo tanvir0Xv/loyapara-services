@@ -57,16 +57,16 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-[#020617]">
       {/* ব্যাকগ্রাউন্ড লেয়ার - ব্লার এবং ডার্ক ওভারলে */}
-      <motion.div
+      <motion.div 
         initial={{ scale: 1.1 }}
         animate={{ scale: 1 }}
         transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
         className="absolute inset-0 z-0"
       >
-        <img
-          src={VILLAGE_BG}
-          className="w-full h-full object-cover opacity-30 blur-[4px]"
-          alt="Village BG"
+        <img 
+          src="/loyapara.jpg" 
+          className="w-full h-full object-cover opacity-30 blur-[4px]" 
+          alt="Village BG" 
         />
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/90 to-[#020617]" />
       </motion.div>

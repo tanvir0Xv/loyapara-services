@@ -341,6 +341,14 @@ const Navbar: React.FC = () => {
               {navItems}
               <li className="mb-1">
                 <Link
+                  href="/lostFound"
+                  className={`rounded-xl py-3 px-4 font-bold ${isActive("/lostFound") ? "bg-primary/10 text-primary" : "text-slate-600"}`}
+                >
+                  হারানো ও প্রাপ্তি
+                </Link>
+              </li>
+              <li className="mb-1">
+                <Link
                   href="/emergency"
                   className={`rounded-xl py-3 px-4 font-bold ${isActive("/emergency") ? "bg-primary/10 text-primary" : "text-slate-600"}`}
                 >
@@ -393,6 +401,18 @@ const Navbar: React.FC = () => {
             {navItems}
             <li>
               <Link
+                href="/lostFound"
+                className={`px-6 py-2.5 rounded-full font-bold transition-all ${
+                  isActive("/lostFound")
+                    ? "bg-primary text-white shadow-lg shadow-primary/20"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                হারানো ও প্রাপ্তি
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/emergency"
                 className={`px-6 py-2.5 rounded-full font-bold transition-all ${
                   isActive("/emergency")
@@ -423,7 +443,7 @@ const Navbar: React.FC = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleDashboardClick}
-            className="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-slate-900 text-white font-bold text-sm shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-slate-900 text-white font-bold text-sm shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all"
           >
             {isCheckingDashboard ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -432,14 +452,6 @@ const Navbar: React.FC = () => {
             )}
             Admin
           </motion.button>
-
-          {/* লিস্টিং যোগ করুন বাটন */}
-          <Link
-            href="/addService"
-            className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-primary text-white font-bold text-sm shadow-xl shadow-primary/20 hover:brightness-110 transition-all active:scale-95"
-          >
-            <span>লিস্টিং যোগ করুন</span>
-          </Link>
 
           <div className="dropdown dropdown-end">
             <div

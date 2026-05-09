@@ -38,5 +38,121 @@ export async function GET(
       { error: "ডেটা লোড করতে সমস্যা হয়েছে" },
       { status: 500 },
     );
-  } // <--- এইখানে catch ব্লকের ব্র্যাকেট
-} // <--- এইখানে ফাংশনের শেষ ব্র্যাকেট
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await context.params;
+    const data = await request.json();
+    const { _id, ...updateData } = data;
+
+    if (!id || !ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    }
+
+    const allCollection = await dbConnect(collectionName.ALL as string);
+    const existingData = await allCollection.findOne({ _id: new ObjectId(id) });
+
+    if (!existingData) {
+      return NextResponse.json({ error: "Data not found" }, { status: 404 });
+    }
+
+    // ১. 'all' কালেকশনে আপডেট করা
+    await allCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { ...updateData, updatedAt: new Date() } }
+    );
+
+    // ২. স্পেসিফিক কালেকশনে আপডেট করা
+    const categoryToCollection: Record<string, collectionName> = {
+      "রাজমিস্ত্রি": collectionName.RAJMISTRI,
+      "ওয়েল্ডিং মিস্ত্রি": collectionName.WELDING,
+      "পাইপ ফিটিং (প্লাম্বার)": collectionName.PLAMBAR,
+      "গরুর ডাক্তার (পশু চিকিৎসক)": collectionName.COWDOCTOR,
+      "মাস্টার / গৃহশিক্ষক": collectionName.TEACHER,
+      "হোমিও ডাক্তার": collectionName.HOMEOPATHICDOCTOR,
+      "ভ্যান ও অটো সার্ভিস": collectionName.VANANDAUTO,
+      "ইলেকট্রিশিয়ান": collectionName.ELECTRICAN,
+      "ইলেকট্রনিক্স মেকার": collectionName.ELECTRONICS,
+      "মোটরসাইকেল মেকার": collectionName.MOTORCYCLEMECHANIC,
+      "মেশিন ও হালের মেকার": collectionName.POWERTILLERMECHANIC,
+      "ভ্যান ও সাইকেল মেকার": collectionName.VANCYCLEMECHANIC,
+      "খেজুরের রস": collectionName.DATEJUICE,
+      "কৃষি শ্রমিক": collectionName.FARMER,
+      "কৃষক / কৃষি উদ্যোক্তা": collectionName.HOUSEHOLDER,
+      "দর্জি / টেইলার্স": collectionName.TAILOR,
+    };
+
+    const targetCollectionName = categoryToCollection[existingData.category];
+    if (targetCollectionName && existingData.specificId) {
+      const specificCollection = await dbConnect(targetCollectionName as string);
+      await specificCollection.updateOne(
+        { _id: new ObjectId(existingData.specificId) },
+        { $set: { ...updateData, updatedAt: new Date() } }
+      );
+    }
+
+    return NextResponse.json({ message: "Updated successfully" });
+  } catch (error: any) {
+    console.error("Update Error:", error);
+    return NextResponse.json({ error: "Failed to update" }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await context.params;
+
+    if (!id || !ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    }
+
+    const allCollection = await dbConnect(collectionName.ALL as string);
+    const existingData = await allCollection.findOne({ _id: new ObjectId(id) });
+
+    if (!existingData) {
+      return NextResponse.json({ error: "Data not found" }, { status: 404 });
+    }
+
+    // ১. 'all' কালেকশন থেকে ডিলিট করা
+    await allCollection.deleteOne({ _id: new ObjectId(id) });
+
+    // ২. স্পেসিফিক কালেকশন থেকে ডিলিট করা
+    const categoryToCollection: Record<string, collectionName> = {
+      "রাজমিস্ত্রি": collectionName.RAJMISTRI,
+      "ওয়েল্ডিং মিস্ত্রি": collectionName.WELDING,
+      "পাইপ ফিটিং (প্লাম্বার)": collectionName.PLAMBAR,
+      "গরুর ডাক্তার (পশু চিকিৎসক)": collectionName.COWDOCTOR,
+      "মাস্টার / গৃহশিক্ষক": collectionName.TEACHER,
+      "হোমিও ডাক্তার": collectionName.HOMEOPATHICDOCTOR,
+      "ভ্যান ও অটো সার্ভিস": collectionName.VANANDAUTO,
+      "ইলেকট্রিশিয়ান": collectionName.ELECTRICAN,
+      "ইলেকট্রনিক্স মেকার": collectionName.ELECTRONICS,
+      "মোটরসাইকেল মেকার": collectionName.MOTORCYCLEMECHANIC,
+      "মেশিন ও হালের মেকার": collectionName.POWERTILLERMECHANIC,
+      "ভ্যান ও সাইকেল মেকার": collectionName.VANCYCLEMECHANIC,
+      "খেজুরের রস": collectionName.DATEJUICE,
+      "কৃষি শ্রমিক": collectionName.FARMER,
+      "কৃষক / কৃষি উদ্যোক্তা": collectionName.HOUSEHOLDER,
+      "দর্জি / টেইলার্স": collectionName.TAILOR,
+    };
+
+    const targetCollectionName = categoryToCollection[existingData.category];
+    if (targetCollectionName && existingData.specificId) {
+      const specificCollection = await dbConnect(targetCollectionName as string);
+      await specificCollection.deleteOne({ _id: new ObjectId(existingData.specificId) });
+    }
+
+    return NextResponse.json({ message: "Deleted successfully" });
+  } catch (error: any) {
+    console.error("Delete Error:", error);
+    return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
+  }
+}
