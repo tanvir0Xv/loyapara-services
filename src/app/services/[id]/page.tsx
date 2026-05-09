@@ -1,34 +1,62 @@
+'use client';
+
 import DetailsModal from "@/Components/DetailsModal/DetailsModal";
 import HandleOpenModal from "@/Components/DetailsModal/HandleOpenModal";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
-export default async function ServiceDetailsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default function ServiceDetailsPage() {
+  const params = useParams();
+  const id = params.id as string;
+  const [serviceData, setServiceData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Fetch data using relative path for safety
-  let serviceData;
-  try {
-    const res = await fetch(`/api/services/${id}`, {
-      cache: "no-store",
-    });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/services/${id}`, {
+          cache: "no-store",
+        });
 
-    if (res.ok) {
-      serviceData = await res.json();
+        if (!res.ok) {
+          throw new Error("Failed to fetch service data");
+        }
+
+        const data = await res.json();
+        setServiceData(data);
+      } catch (err: any) {
+        setError(err.message || "তথ্য পাওয়া যায়নি!");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchData();
     }
-  } catch {
-    // Fallback
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white p-4">
+        <div className="text-center">
+          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-slate-500 font-bold">তথ্য লোড হচ্ছে...</p>
+        </div>
+      </div>
+    );
   }
 
-  if (!serviceData) {
+  if (error || !serviceData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white p-4">
         <div className="text-center">
           <p className="text-gray-500 text-xl font-bold mb-4">
-            তথ্য পাওয়া যায়নি!
+            {error || "তথ্য পাওয়া যায়নি!"}
           </p>
           <Link
             href="/services"
@@ -60,5 +88,3 @@ export default async function ServiceDetailsPage({
     </DetailsModal>
   );
 }
-
-export const dynamic = "force-dynamic";
