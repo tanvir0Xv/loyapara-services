@@ -375,7 +375,13 @@ export default function DashboardPage() {
   };
 
   const updateClaimStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: "verified" | "rejected" }) => {
+    mutationFn: async ({
+      id,
+      status,
+    }: {
+      id: string;
+      status: "verified" | "rejected";
+    }) => {
       const response = await fetch(`/api/claims/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -622,8 +628,8 @@ export default function DashboardPage() {
         >
           <div className="border-b border-slate-100 bg-slate-50/50 p-4 backdrop-blur-sm md:p-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex rounded-2xl bg-slate-200/50 p-1.5 backdrop-blur-md">
+              <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                <div className="flex rounded-2xl bg-slate-200/50 p-1.5 backdrop-blur-md min-w-max">
                   {[
                     {
                       id: "complaints",
@@ -637,7 +643,7 @@ export default function DashboardPage() {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as ActiveTab)}
-                      className={`relative flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-bold transition-all ${
+                      className={`relative flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all whitespace-nowrap ${
                         activeTab === tab.id
                           ? "bg-white text-indigo-600 shadow-md"
                           : "text-slate-500 hover:text-slate-700"
@@ -939,18 +945,9 @@ export default function DashboardPage() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: idx * 0.05 }}
-                        onClick={() => {
-                          if (activeTab === "complaints")
-                            setViewComplain(row as Complaint);
-                          else if (activeTab === "lostfound")
-                            setViewLostFound(row as LostFoundItem);
-                          else if (activeTab === "claims")
-                            setViewClaim(row as Claim);
-                          else setViewService(row as Service);
-                        }}
-                        className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm active:scale-95 transition-transform cursor-pointer"
+                        className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm"
                       >
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-start justify-between mb-4">
                           <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 font-bold text-indigo-600">
                               {(activeTab === "complaints"
@@ -962,7 +959,140 @@ export default function DashboardPage() {
                                     : (row as Service).name
                               ).charAt(0)}
                             </div>
+                            <div>
+                              {activeTab === "complaints" && (
+                                <>
+                                  <h4 className="font-bold text-slate-900">
+                                    {(row as Complaint).accusedName}
+                                  </h4>
+                                  <span className="rounded-lg bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600">
+                                    {(row as Complaint).complaintType}
+                                  </span>
+                                </>
+                              )}
+                              {activeTab === "lostfound" && (
+                                <>
+                                  <h4 className="font-bold text-slate-900">
+                                    {(row as LostFoundItem).title}
+                                  </h4>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <span
+                                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${
+                                        statusPillClass[
+                                          (row as LostFoundItem).type
+                                        ]
+                                      }`}
+                                    >
+                                      {(row as LostFoundItem).type}
+                                    </span>
+                                    <span
+                                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${
+                                        statusPillClass[
+                                          (row as LostFoundItem).status ||
+                                            "active"
+                                        ]
+                                      }`}
+                                    >
+                                      {(row as LostFoundItem).status ||
+                                        "active"}
+                                    </span>
+                                  </div>
+                                </>
+                              )}
+                              {activeTab === "claims" && (
+                                <>
+                                  <h4 className="font-bold text-slate-900">
+                                    {(row as Claim).claimerName}
+                                  </h4>
+                                  <p className="text-sm text-slate-500">
+                                    {(row as Claim).claimerPhone}
+                                  </p>
+                                  <span
+                                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider mt-1 ${
+                                      statusPillClass[(row as Claim).status]
+                                    }`}
+                                  >
+                                    {(row as Claim).status}
+                                  </span>
+                                </>
+                              )}
+                              {activeTab === "services" && (
+                                <>
+                                  <h4 className="font-bold text-slate-900">
+                                    {(row as Service).name}
+                                  </h4>
+                                  <span className="rounded-lg bg-indigo-50 px-2 py-0.5 text-xs font-bold text-indigo-600">
+                                    {(row as Service).category}
+                                  </span>
+                                  <p className="text-sm text-slate-500 mt-1">
+                                    {(row as Service).phone}
+                                  </p>
+                                </>
+                              )}
+                            </div>
                           </div>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                if (activeTab === "complaints")
+                                  setViewComplain(row as Complaint);
+                                else if (activeTab === "lostfound")
+                                  setViewLostFound(row as LostFoundItem);
+                                else if (activeTab === "claims")
+                                  setViewClaim(row as Claim);
+                                else setViewService(row as Service);
+                              }}
+                              className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-500 transition-all hover:bg-slate-100"
+                            >
+                              <ExternalLink size={16} />
+                            </button>
+
+                            {activeTab !== "claims" && (
+                              <button
+                                onClick={() => {
+                                  if (activeTab === "complaints")
+                                    setEditComplain(row as Complaint);
+                                  else if (activeTab === "lostfound")
+                                    setEditLostFound(row as LostFoundItem);
+                                  else setEditService(row as Service);
+                                }}
+                                className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-500 transition-all hover:bg-slate-100"
+                              >
+                                <Edit3 size={16} />
+                              </button>
+                            )}
+
+                            {activeTab === "lostfound" &&
+                              (row as LostFoundItem).status !== "claimed" && (
+                                <button
+                                  onClick={() =>
+                                    void markAsClaimed((row as any)._id)
+                                  }
+                                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-500 transition-all hover:bg-emerald-100"
+                                >
+                                  <CheckCircle2 size={16} />
+                                </button>
+                              )}
+                          </div>
+
+                          {activeTab !== "claims" && (
+                            <button
+                              onClick={() => {
+                                if (activeTab === "complaints")
+                                  void deleteComplain((row as any)._id);
+                                else if (activeTab === "lostfound")
+                                  void deleteLostFound((row as any)._id);
+                                else if (activeTab === "services")
+                                  void deleteService((row as any)._id);
+                              }}
+                              className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-500 transition-all hover:bg-rose-100"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
                         </div>
                       </motion.article>
                     ))}
@@ -993,8 +1123,12 @@ export default function DashboardPage() {
             >
               <div className="flex items-start justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-black text-slate-900">Complaint Details</h2>
-                  <p className="text-slate-500 mt-1">Viewing complaint record</p>
+                  <h2 className="text-2xl font-black text-slate-900">
+                    Complaint Details
+                  </h2>
+                  <p className="text-slate-500 mt-1">
+                    Viewing complaint record
+                  </p>
                 </div>
                 <button
                   onClick={() => setViewComplain(null)}
@@ -1006,16 +1140,26 @@ export default function DashboardPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="rounded-xl bg-slate-50 p-4">
-                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Accused Name</p>
-                    <p className="font-bold text-slate-900">{viewComplain.accusedName}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
+                      Accused Name
+                    </p>
+                    <p className="font-bold text-slate-900">
+                      {viewComplain.accusedName}
+                    </p>
                   </div>
                   <div className="rounded-xl bg-slate-50 p-4">
-                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Complaint Type</p>
-                    <p className="font-bold text-slate-900">{viewComplain.complaintType}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
+                      Complaint Type
+                    </p>
+                    <p className="font-bold text-slate-900">
+                      {viewComplain.complaintType}
+                    </p>
                   </div>
                 </div>
                 <div className="rounded-xl bg-slate-50 p-4">
-                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Message</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
+                    Message
+                  </p>
                   <p className="text-slate-700">{viewComplain.message}</p>
                 </div>
               </div>
@@ -1048,7 +1192,9 @@ export default function DashboardPage() {
             >
               <div className="flex items-start justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-black text-slate-900">Lost & Found Details</h2>
+                  <h2 className="text-2xl font-black text-slate-900">
+                    Lost & Found Details
+                  </h2>
                   <p className="text-slate-500 mt-1">Viewing item record</p>
                 </div>
                 <button
@@ -1061,16 +1207,26 @@ export default function DashboardPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="rounded-xl bg-slate-50 p-4">
-                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Title</p>
-                    <p className="font-bold text-slate-900">{viewLostFound.title}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
+                      Title
+                    </p>
+                    <p className="font-bold text-slate-900">
+                      {viewLostFound.title}
+                    </p>
                   </div>
                   <div className="rounded-xl bg-slate-50 p-4">
-                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Type</p>
-                    <p className="font-bold text-slate-900">{viewLostFound.type}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
+                      Type
+                    </p>
+                    <p className="font-bold text-slate-900">
+                      {viewLostFound.type}
+                    </p>
                   </div>
                 </div>
                 <div className="rounded-xl bg-slate-50 p-4">
-                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Description</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
+                    Description
+                  </p>
                   <p className="text-slate-700">{viewLostFound.description}</p>
                 </div>
               </div>
@@ -1285,7 +1441,9 @@ export default function DashboardPage() {
               className="w-full max-w-md rounded-[2rem] bg-white p-6 md:p-8"
             >
               <div className="flex items-start justify-between mb-6">
-                <h2 className="text-xl font-black text-slate-900">Edit Complaint</h2>
+                <h2 className="text-xl font-black text-slate-900">
+                  Edit Complaint
+                </h2>
                 <button
                   onClick={() => setEditComplain(null)}
                   className="text-slate-400 hover:text-slate-700"
@@ -1298,7 +1456,10 @@ export default function DashboardPage() {
                   required
                   value={editComplain.accusedName}
                   onChange={(e) =>
-                    setEditComplain({ ...editComplain, accusedName: e.target.value })
+                    setEditComplain({
+                      ...editComplain,
+                      accusedName: e.target.value,
+                    })
                   }
                   className="w-full rounded-xl border border-slate-200 p-3"
                   placeholder="Accused Name"
@@ -1307,7 +1468,10 @@ export default function DashboardPage() {
                   required
                   value={editComplain.complaintType}
                   onChange={(e) =>
-                    setEditComplain({ ...editComplain, complaintType: e.target.value })
+                    setEditComplain({
+                      ...editComplain,
+                      complaintType: e.target.value,
+                    })
                   }
                   className="w-full rounded-xl border border-slate-200 p-3"
                   placeholder="Complaint Type"
@@ -1316,7 +1480,10 @@ export default function DashboardPage() {
                   required
                   value={editComplain.message}
                   onChange={(e) =>
-                    setEditComplain({ ...editComplain, message: e.target.value })
+                    setEditComplain({
+                      ...editComplain,
+                      message: e.target.value,
+                    })
                   }
                   rows={4}
                   className="w-full rounded-xl border border-slate-200 p-3"
@@ -1358,7 +1525,9 @@ export default function DashboardPage() {
               className="w-full max-w-md rounded-[2rem] bg-white p-6 md:p-8"
             >
               <div className="flex items-start justify-between mb-6">
-                <h2 className="text-xl font-black text-slate-900">Edit Lost/Found</h2>
+                <h2 className="text-xl font-black text-slate-900">
+                  Edit Lost/Found
+                </h2>
                 <button
                   onClick={() => setEditLostFound(null)}
                   className="text-slate-400 hover:text-slate-700"
@@ -1371,7 +1540,10 @@ export default function DashboardPage() {
                   required
                   value={editLostFound.title}
                   onChange={(e) =>
-                    setEditLostFound({ ...editLostFound, title: e.target.value })
+                    setEditLostFound({
+                      ...editLostFound,
+                      title: e.target.value,
+                    })
                   }
                   className="w-full rounded-xl border border-slate-200 p-3"
                   placeholder="Title"
@@ -1380,7 +1552,10 @@ export default function DashboardPage() {
                   required
                   value={editLostFound.location}
                   onChange={(e) =>
-                    setEditLostFound({ ...editLostFound, location: e.target.value })
+                    setEditLostFound({
+                      ...editLostFound,
+                      location: e.target.value,
+                    })
                   }
                   className="w-full rounded-xl border border-slate-200 p-3"
                   placeholder="Location"
@@ -1397,7 +1572,10 @@ export default function DashboardPage() {
                 <textarea
                   value={editLostFound.description || ""}
                   onChange={(e) =>
-                    setEditLostFound({ ...editLostFound, description: e.target.value })
+                    setEditLostFound({
+                      ...editLostFound,
+                      description: e.target.value,
+                    })
                   }
                   rows={3}
                   className="w-full rounded-xl border border-slate-200 p-3"
@@ -1439,7 +1617,9 @@ export default function DashboardPage() {
               className="w-full max-w-md rounded-[2rem] bg-white p-6 md:p-8 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-start justify-between mb-6">
-                <h2 className="text-xl font-black text-slate-900">Edit Service</h2>
+                <h2 className="text-xl font-black text-slate-900">
+                  Edit Service
+                </h2>
                 <button
                   onClick={() => setEditService(null)}
                   className="text-slate-400 hover:text-slate-700"

@@ -366,18 +366,18 @@ const Navbar: React.FC = () => {
             </ul>
           </div>
 
-          <Link href="/" className="flex items-center gap-3 group relative">
+          <Link href="/" className="flex items-center gap-2 group relative">
             <motion.div
               whileHover={{ rotate: 15, scale: 1.1 }}
-              className="bg-primary p-2.5 rounded-2xl text-white shadow-lg shadow-primary/20 transition-all group-hover:shadow-primary/40"
+              className="bg-primary p-2 rounded-xl text-white shadow-lg shadow-primary/20 transition-all group-hover:shadow-primary/40"
             >
-              <MapPin size={22} strokeWidth={2.5} />
+              <MapPin size={18} strokeWidth={2.5} />
             </motion.div>
             <div className="flex flex-col">
-              <span className="text-xl font-black tracking-tighter text-slate-900 leading-none">
+              <span className="text-lg lg:text-xl font-black tracking-tighter text-slate-900 leading-none">
                 লয়াপাড়া<span className="text-primary italic">সেবা</span>
               </span>
-              <span className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1">
+              <span className="hidden lg:block text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1">
                 Village Network
               </span>
             </div>
@@ -443,14 +443,14 @@ const Navbar: React.FC = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleDashboardClick}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-slate-900 text-white font-bold text-sm shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl lg:px-5 lg:py-2.5 lg:rounded-2xl bg-slate-900 text-white font-bold text-xs lg:text-sm shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all"
           >
             {isCheckingDashboard ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="w-3 h-3 lg:w-4 lg:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
-              <ShieldAlert size={16} className="text-primary" />
+              <ShieldAlert size={14} className="text-primary" />
             )}
-            Admin
+            <span className="hidden sm:inline">Admin</span>
           </motion.button>
 
           <div className="dropdown dropdown-end">
