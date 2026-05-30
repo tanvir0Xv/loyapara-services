@@ -43,10 +43,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     // উদাহরণ: আপনার ডাটাবেজ বা API থেকে সার্ভিস বা ক্যাটাগরির লিস্ট আনা
     const res = await fetch(`${baseUrl}/api/services`, { next: { revalidate: 3600 } });
-    const services = await res.json(); // ধরুন ডেটা আসলো: [{ slug: 'electrician' }, { slug: 'plumber' }]
+    const services = await res.json(); // ধরুন ডেটা আসলো: [{ _id: 'electrician' }, { _id: 'plumber' }]
 
-    dynamicServices = services.map((service: { slug: string; updatedAt?: string }) => ({
-      url: `${baseUrl}/services/${service.slug}`,
+    dynamicServices = services.map((service: { _id: string; updatedAt?: string }) => ({
+      url: `${baseUrl}/services/${service._id}`,
       lastModified: service.updatedAt ? new Date(service.updatedAt) : new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
