@@ -98,11 +98,11 @@ export default function Hero() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
+  const router = useRouter(); 
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Organization", // অথবা "LocalBusiness"
+    "@type": "Organization", 
     name: "লয়াপাড়া সেবা - Loyapara Services",
     description:
       "কাগইল ইউনিয়ন, গাবতলী থানা, বগুড়া জেলার লয়াপাড়ার ডিজিটাল সেবা ও তথ্য।",
